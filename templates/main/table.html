@@ -1,0 +1,40 @@
+{% extends "main/../title.html" %} {% block body %}
+{% if need_copy_field %}
+<form action="chars_copy/" method="post" id="table"></form>
+{% if cabs %}
+<fieldset
+  name="Выбранные кабинеты для распространения карточки"
+  form="table">
+    <table style="margin: auto">
+        <tr>
+            {% for cab in cabs %}
+                {% if loop.index != 1 and (loop.index) % 3 == 1 %}
+                    </tr>
+                    <tr>
+                {% endif %}
+                <td style="text-align: left">
+                    <input
+                    type="checkbox"
+                    value="{{ cabs[cab] }}"
+                    name="{{ cab }}"
+                    form="table"
+                    id="{{ cab }}"/>
+                    <label for="{{ cab }}">{{ cab }}</label>
+                </td>
+                {% if loop.last %}
+                    {% for i in range(3 - loop.index % 3) %}
+                        <td></td>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </tr>
+    </table>
+        <input type="hidden" value="{{ offer }}" name="offer" form="table" />
+        <input
+          class="btn"
+          type="submit"
+          value="Отправить отмеченный эталон на выбранные кабинеты"
+          form="table"
+        />
+</fieldset>
+  {% endif %} {% endif %} {{ table | safe }} {% endblock %}

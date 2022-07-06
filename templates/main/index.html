@@ -1,0 +1,82 @@
+{% extends "messages.html" %}
+{% block body %}
+    <form action="/data" method="get" target="_blank">
+        <legend>Пожалуйста, укажите режим загрузки</legend>
+        <fieldset>
+        <div>
+            <input
+              type="radio"
+              value="Получение основной информации"
+              name="Режим"
+              id="radio_main"
+              checked
+            />
+            <label for="radio_main">Получение основной информации</label>
+        </div>
+        <div>
+            <input
+              type="radio"
+              value="Получение характеристик"
+              name="Режим"
+              id="radio_chars"
+            />
+            <label for="radio_chars">Получение характеристик</label>
+        </div>
+        <div>
+            <input
+              type="radio"
+              value="Опрос наличия списком"
+              name="Режим"
+              id="radio_chars"
+            />
+            <label for="radio_chars">Опрос наличия на площадке списком</label>
+        </div>
+      </fieldset>
+      <p>
+        <input type="text" id="code_1c" name="code_1c"/>
+        <label for="code_1c">Введите код 1С</label>
+      </p>
+      <p>
+        <input
+          class="btn"
+          type="submit"
+          value="Получить основные данные карточки"
+        />
+      </p>
+    </form>
+    <br/>
+    <legend>Дополнительные функции</legend>
+    <form method="get">
+        <fieldset>
+        <div>
+          <button
+            class="btn"
+            type="submit"
+            formtarget="_blank"
+            formaction="/mass_copy"
+            formmethod="get"
+          >
+            Массовое копирование
+          </button>
+          <button
+            class="btn"
+            type="submit"
+            formtarget="_blank"
+            formaction="/rich_content"
+          >
+            Формирование рич-контента
+          </button>
+          <button
+            class="btn"
+            type="submit"
+            formtarget="_blank"
+            formaction="/archive_clear"
+          >
+            Зачистка архива
+          </button>
+        </div>
+        </fieldset>
+    </form>
+{% endblock %}
+
+

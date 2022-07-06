@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/html">
+<head>
+    <link rel="stylesheet" href="{% static 'styles.css' %}" />
+    <meta charset="UTF-8">
+    <meta
+      http-equiv="cache-control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <title>Незнайка Макротек</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{% static 'favicons/apple-touch-icon.png' %}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{% static 'favicons/favicon-32x32.png' %}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicons/favicon-16x16.png"
+    />
+</head>
+{% block messages %}{% endblock %}
+<body>
+    {% block body %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends 'main/../title.html' %}
+{% block body %}
+<form action="" method="post">
+    <legend>Пожалуйста, укажите кабинет ДОНОР</legend>
+    <fieldset>
+            {% for cab in cabs %}
+                <div>
+                    <input type="radio" value={{ cab }} name="selected_donor" id="radio_main" checked>
+                    <label for="radio_main">{{ cabs[cab] }}</label>
+                </div>
+            {% endfor %}
+        </fieldset>
+    <p>
+            <label for="code_1c">Введите коды 1С</label>
+            <textarea id="code_1c" name="code_1c" rows="15" cols="100"></textarea>
+        </p>
+    <p>
+        <input class="btn" type="submit" value="Отправить данные">
+    </p>
+</form>
+{% endblock %}

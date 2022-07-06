@@ -1,0 +1,42 @@
+{% extends 'main/../title.html' %}
+{% block body %}
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
+    <form action="" method="post">
+            <legend>Пожалуйста, укажите кабинет для создания контента</legend>
+          <fieldset>
+            {% for cab in cabs %}
+                <div>
+                    <input type="radio" value={{ cab }} name="selected_target" id="radio_main" checked>
+                    <label for="radio_main">{{ cabs[cab] }}</label>
+                </div>
+            {% endfor %}
+        </fieldset>
+
+        <p>
+	            <label for="code_1c">Введите коды 1С</label>
+            <div>
+                <textarea id="code_1c" name="code_1c" rows="15" cols="100"></textarea>
+            </div>
+	    </p>
+	    <p>
+	        <input class="btn" type="submit" value="Создать контент для выбранных кодов">
+	    </p>
+    </form>
+{#    <br>#}
+{#    <br>#}
+{#    <form>#}
+{##}
+{#        <button type="submit"#}
+{#                formaction="{{ url_for('rich_all') }}"#}
+{#                formmethod="get"#}
+{#                style="#}
+{#                    background: rgb(241,123,88);#}
+{#                    padding: 10px 15px;#}
+{#                    font-style: italic;#}
+{#                    font-size: medium;#}
+{#                    font-family: Arial, Helvetica, sans-serif;"#}
+{#        >Запустить по всем кабинетам</button>#}
+{#    </form>#}
+{% endblock %}

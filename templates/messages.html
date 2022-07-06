@@ -1,0 +1,8 @@
+{% extends 'main/../title.html' %}
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <p><center>{{ message }}</center><br>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
