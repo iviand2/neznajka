@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'logg',
+    'ozon_api',
 ]
 
 MIDDLEWARE = [

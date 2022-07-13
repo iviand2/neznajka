@@ -10,10 +10,11 @@ class Cab(models.Model):
 
 	class Meta:
 		ordering = ('client_id',)
+		get_latest_by = ('created',)
 
 	def __str__(self):
 		return f'{self.name} :: {self.client_id}'
 
 	def auth(self):
-		return {'Client-Id': self.client_id, 'Api-Key': self.api_key}
+		return {'Client-Id': str(self.client_id), 'Api-Key': self.api_key}
 

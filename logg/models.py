@@ -4,6 +4,7 @@ from django.db import models
 # Create your models here.
 class Error(models.Model):
 	datetime = models.DateTimeField(auto_now_add=True)
+	level = models.CharField(max_length=20)
 	initiator = models.CharField(max_length=20)
 	error = models.CharField(max_length=300)
 	traceback = models.CharField(max_length=10000)

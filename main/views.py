@@ -31,6 +31,13 @@ def mass_copy_index(request):
 
 @csrf_exempt
 def gag(request, **args):
+	with open('log.txt', 'a') as file:
+		file.write(
+			f'''Time :: {datetime.datetime.now()} - ошибка отработки запроса
+				Query :: {request.query_string}\n
+				Headers :: \n{request.headers}\n
+				Body :: \n{request.data}\n{'-' * 100}''')
+		file.close()
 	data = {
 		"version": "0.1",
 		"name": "neznajka_api",

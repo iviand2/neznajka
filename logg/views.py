@@ -13,6 +13,8 @@ def new_error(request, initiator):
 		try:
 			body_dict = loads(request.body)
 			initiator = initiator
+			level = body_dict['level'] if 'level' in body_dict.keys() \
+				else 'info'
 			error = body_dict['error'] if 'error' in body_dict.keys() \
 				else 'Краткое описание ошибки не передано'
 			traceback = body_dict['traceback'] if 'traceback' in body_dict.keys() \
@@ -23,7 +25,7 @@ def new_error(request, initiator):
 				context = dumps(context)
 			else:
 				context = context.__str__()
-			Error(initiator=initiator, error=error, traceback=traceback, context=context).save()
+			Error(initiator=initiator, error=error, traceback=traceback, context=context, level=level).save()
 			data = {
 				'status': 'success',
 				'context': '',
