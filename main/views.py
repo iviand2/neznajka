@@ -11,6 +11,22 @@ from .models import Cab
 # Create your views here.
 @csrf_exempt
 def index(request, **args):
+	try:
+		with open('log.txt', 'a') as file:
+			file.write(
+				f'''Time :: {
+				datetime.datetime.now()
+				}\nQuery :: {
+				request.path
+				}\nHeaders :: \n{
+				request.headers
+				}\nBody :: \n{
+				request.body
+				}\n{
+				'-' * 100
+				}\n\n''')
+	except Exception as ex:
+		pass
 	data = {
 		"version": "0.1",
 		"name": "neznajka_api",
@@ -31,13 +47,22 @@ def mass_copy_index(request):
 
 @csrf_exempt
 def gag(request, **args):
-	with open('log.txt', 'a') as file:
-		file.write(
-			f'''Time :: {datetime.datetime.now()} - ошибка отработки запроса
-				Query :: {request.query_string}\n
-				Headers :: \n{request.headers}\n
-				Body :: \n{request.data}\n{'-' * 100}''')
-		file.close()
+	try:
+		with open('log.txt', 'a') as file:
+			file.write(
+				f'''Time :: {
+				datetime.datetime.now()
+				}\nQuery :: {
+				request.path
+				}\nHeaders :: \n{
+				request.headers
+				}\nBody :: \n{
+				request.body
+				}\n{
+				'-' * 100
+				}\n\n''')
+	except Exception as ex:
+		pass
 	data = {
 		"version": "0.1",
 		"name": "neznajka_api",

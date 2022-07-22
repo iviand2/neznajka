@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Attribute, Category, AttributeValue, Card
+from .models import Attribute, Category, AttributeValue, Card, Task
 
 
 # Register your models here.
@@ -19,4 +19,23 @@ class CategoryAdmin(admin.ModelAdmin):
 	search_fields = ('category_id', 'name')
 	# raw_id_fields = ('client_id',)
 	ordering = ('category_id',)
+
+
+@admin.register(Task)
+class CategoryAdmin(admin.ModelAdmin):
+	list_display = ('function',	'status', 'context', 'ended', 'created')
+	# search_fields = ('name', )
+	list_filter = ('status', )
+
+
+@admin.register(AttributeValue)
+class AttrValueAdmin(admin.ModelAdmin):
+	list_display = ('identifier', 'value', 'attribute')
+
+
+# admin.site.register(AttributeValue)
+admin.site.register(Card)
+
+# @admin.register(Task):
+# class TaskAdminadmin.
 

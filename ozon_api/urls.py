@@ -5,6 +5,6 @@ urlpatterns = [
 	path('update_ratings/', update_ratings),
 	path('update_categories/', update_categories),
 	path('attribute/<int:attr_id>/update', update_attribute),
-
+	path('attr_value/by_name', get_by_name)
 ]
 

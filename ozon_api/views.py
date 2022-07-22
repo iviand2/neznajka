@@ -1,4 +1,7 @@
+import concurrent.futures
 import datetime
+import inspect
+import json
 import logging
 import time
 import traceback
@@ -13,6 +16,8 @@ from .modules import static_data
 from main.models import Cab
 import requests
 from timeit import default_timer as timer
+from django.core.exceptions import *
+from django.core.serializers import serialize
 
 
 # Create your views here.
@@ -33,7 +38,7 @@ def long(func):
 
 		def executing(task, function, *args, **kwargs):
 			try:
-				function(args, kwargs)
+				function(*args, **kwargs)
 				t.status = 'completed'
 			except Exception as ex:
 				t.status = 'uncomplete_error'
@@ -41,8 +46,8 @@ def long(func):
 			t.ended = datetime.datetime.now(tz=curr_tz)
 			t.save()
 		try:
-			Thread(target=executing, args=(t, func, args), kwargs=kwargs).start()
-		except Thread as ex:
+			Thread(target=executing, args=(t, func, *args), kwargs=kwargs).start()
+		except Exception as ex:
 			t.status = 'thread_starting_error'
 			t.ended = datetime.datetime.now()
 			t.save()
@@ -171,42 +176,136 @@ def update_attributes(request, heads=None, session=None):
 @csrf_exempt
 @long
 def update_attribute(request, attr_id):
-	attr_id = attr_id['attr_id']
 	attr = Attribute.objects.get(identifier=attr_id)
 	head = Cab.objects.latest().auth()
 	url = 'https://api-seller.ozon.ru/v2/category/attribute/values'
 	session = requests.session()
 	session.headers = head
 	vals = AttributeValue.objects.all()
-	for category in attr.category.all():
-		body = {
-			"attribute_id": attr.identifier,
-			"category_id": category.category_id,
-			"language": "DEFAULT",
-			"last_value_id": 0,
-			"limit": 5000
-		}
-		while True:
-			resp = session.post(url=url, json=body)
-			if resp.status_code != 200:
-				logging.log(level=4, msg=resp.text, exc_info=True, stack_info=True)
+	with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+		futures = [executor.submit(__resp_work_attributes, category, session, attr, vals) for category in attr.category.all()]
+		for future in concurrent.futures.as_completed(futures):
+			try:
+				print(future.result())
+			except Exception as ex:
+				print(traceback.format_exception(ex))
+		# print(f'Начали категорию {category.category_id}')
+		# t = timer()
+		# body = {
+		# 	"attribute_id": attr.identifier,
+		# 	"category_id": category.category_id,
+		# 	"language": "DEFAULT",
+		# 	"last_value_id": 0,
+		# 	"limit": 5000
+		# }
+		# while True:
+		# 	resp = session.post(url=url, json=body)
+		# 	if resp.status_code != 200:
+		# 		# logging.log(level=4, msg=resp.text, exc_info=True, stack_info=True)
+		# 		print(f'ERROR :: {resp.text}')
+		# 		break
+		#
+		# 	data = resp.json()['result']
+		# 	for val in data:
+		# 		# try:
+		# 		# 	base_value = vals.get_or_create(
+		# 		# 		identifier=val['id'],
+		# 		# 		defaults={
+		# 		# 			'name': val['value'],
+		# 		# 			'attribute': attr
+		# 		# 		}
+		# 		# 	)[0]
+		# 		# 	if base_value.name != val['value']:
+		# 		# 		base_value.name = val['value']
+		# 		# 		base_value.save()
+		# 		# except Exception as ex:
+		# 		# 	traceback.format_exc(ex)
+		# 		base_value = vals.get_or_create(
+		# 			identifier=val['id'],
+		# 			defaults={
+		# 				'name': val['value'],
+		# 				'attribute': attr
+		# 			}
+		# 		)[0]
+		# 		if base_value.name != val['value']:
+		# 			base_value.name = val['value']
+		# 			base_value.save()
+		# 	if data:
+		# 		body['last_value_id'] = data[-1]['id']
+		# 		print(f'Уже выполняем {timer() - t}')
+		# 	else:
+		# 		break
+		# print(f'Закончили отработку категории {category.category_id} выполнение - {timer() - t}')
 
-			data = resp.json()['result']
-			for val in data:
-				base_value = vals.get_or_create(
-					identifier=val['id'],
-					defaults={
-						'name': val['value'],
-						'attribute': attr
-					}
-				)[0]
-				if base_value.name != val['value']:
-					base_value.name = val['value']
-					base_value.save()
-			if data:
-				body['last_value_id'] = data[-1]['id']
-			else:
-				break
 
-# def long_execution(task)
+def __resp_work_attributes(category, session, attr, vals):
+	url = 'https://api-seller.ozon.ru/v2/category/attribute/values'
+	print(f'Начали категорию {category.category_id}')
+	t = timer()
+	body = {
+		"attribute_id": attr.identifier,
+		"category_id": category.category_id,
+		"language": "DEFAULT",
+		"last_value_id": 0,
+		"limit": 5000
+	}
+	while True:
+		resp = session.post(url=url, json=body)
+		if resp.status_code != 200:
+			# logging.log(level=4, msg=resp.text, exc_info=True, stack_info=True)
+			print(f'ERROR :: {resp.text}')
+			break
+		data = resp.json()['result']
+		for val in data:
+			# try:
+			# 	base_value = vals.get_or_create(
+			# 		identifier=val['id'],
+			# 		defaults={
+			# 			'name': val['value'],
+			# 			'attribute': attr
+			# 		}
+			# 	)[0]
+			# 	if base_value.name != val['value']:
+			# 		base_value.name = val['value']
+			# 		base_value.save()
+			# except Exception as ex:
+			# 	traceback.format_exc(ex)
+			base_value = vals.get_or_create(
+				identifier=val['id'],
+				defaults={
+					'name': val['value'],
+					'attribute': attr
+				}
+			)[0]
+			if base_value.name != val['value']:
+				base_value.name = val['value']
+				base_value.save()
+		if data:
+			body['last_value_id'] = data[-1]['id']
+			print(f'{category.category_id} :: Уже выполняем {timer() - t}')
+		else:
+			break
+	print(f'Закончили отработку категории {category.category_id} выполнение - {timer() - t}')
+	return f'{category.category_id}  - готово. \nВыполнение - {timer() - t}'
+
+
+@csrf_exempt
+def get_by_name(request):
+	try:
+		data = json.loads(request.body)
+		value = AttributeValue.objects.get(**data)
+		return JsonResponse({'id': value.identifier, 'name': value.name, 'error': ''}, status=200)
+	except FieldError:
+		return JsonResponse({'id': '', 'name': '', 'error': 'incorrect param name'}, status=400)
+	except AttributeValue.DoesNotExist:
+		return JsonResponse({'id': '', 'name': '', 'error': 'Not found'}, status=200)
+	except AttributeValue.MultipleObjectsReturned:
+		value = AttributeValue.objects.filter(**data).order_by('identifier').last()
+		return JsonResponse({
+			'id': value.identifier,
+			'name': value.name,
+			'error': 'Multiple return. Returned max identifier'
+		}, status=200)
+	except Exception as ex:
+		return JsonResponse({'error': str(ex), 'trace': traceback.format_exc()}, status=400)
 
